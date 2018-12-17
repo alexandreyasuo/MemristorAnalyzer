@@ -335,7 +335,7 @@ for i in numberofcsvs:
                 np.savetxt('Flux' + str(figurenumber) +'.csv', flux, delimiter=",")
                 np.savetxt('Charge' + str(figurenumber) +'.csv', charge, delimiter=",")
 
-                '''
+                
 
                 fig = plt.figure()
                 ax = fig.gca(projection='3d')
@@ -347,7 +347,7 @@ for i in numberofcsvs:
                 
                 input("Press Enter to continue...")
 
-                
+                '''
                 
         currentfile.close()
     except TypeError:
@@ -358,7 +358,7 @@ deltaarea = np.diff(np.abs(forwardareas)) / np.abs(forwardareas[:-1])
 deltaf = np.diff(frequencies) / np.abs(frequencies[:-1])
 
 memperarea = (deltaf) / deltaarea
-print(memperarea)
+#print(memperarea)
 
 plt.figure(figsize=(8,8))
 plt.subplot(221)
