@@ -122,16 +122,26 @@ for i in numberofcsvs:
             currentcharge = 0
             # hopefully at beginning of cycle
 
+            currentchargeintegral = 0
+
             charge = []
             flux = []
+
+            chargeintegral = []
 
             resistances = []
             ivplane = []
 
             angles = []
 
+            voltagephasor_angle = []
+
+            currentphasor_angle = []
+
             charge.append(currentcharge)
             flux.append(currentflux)
+
+            chargeintegral.append(currentchargeintegral)
 
             initialtime = data['Time'][0]
             finaltime = data['Time'][len(data['Time'])-1]
@@ -143,6 +153,9 @@ for i in numberofcsvs:
             # to detect turning from "going" to "returning"
 
             resistances.append(data['Voltage'][0]/data['Current'][0])
+
+            voltagephasor_angle.append(np.arccos(data['Voltage'][0]/np.max(data['Voltage'])))
+            currentphasor_angle.append(np.arccos(data['Current'][0]/np.max(data['Current'])))
 
    
             if(data['Voltage'][0] > 0):
@@ -157,10 +170,33 @@ for i in numberofcsvs:
                 
             for j in range(dataNum - 1):
 
+                if (verbose > 9):
+
+                    plt.figure()
+
+                    plt.ylim(-1,1)
+                    plt.xlim(-1,1)
+
+                    origin = [0], [0]
+
+                    voltagephasor = np.sin(voltagephasor_angle[j]), np.sin(currentphasor_angle[j])
+                    currentphasor = np.cos(voltagephasor_angle[j]), np.cos(currentphasor_angle[j])
+
+                    plt.quiver(*origin, voltagephasor, currentphasor, color=['r','b'], scale=5)
+                    
+                    plt.savefig('Phasor' + str(j) +'.png')
+                    plt.close()
+
+                currentchargeintegral = currentchargeintegral + currentcharge*(data['Time'][j+1] - data['Time'][j])
+                chargeintegral.append(currentchargeintegral)
+
                 currentcharge = currentcharge + (data['Time'][j+1] - data['Time'][j])*(data['Current'][j+1] - data['Current'][j])/2 + (data['Time'][j+1] - data['Time'][j])*data['Current'][j]
                 currentflux = currentflux + (data['Time'][j+1] - data['Time'][j])*(data['Voltage'][j+1] - data['Voltage'][j])/2 + (data['Time'][j+1] - data['Time'][j])*data['Voltage'][j]
 
                 resistances.append(data['Voltage'][j]/data['Current'][j])
+
+                voltagephasor_angle.append(np.arccos(np.abs(data['Voltage'][j]/np.max(data['Voltage']))))
+                currentphasor_angle.append(np.arccos(np.abs(data['Current'][j]/np.max(data['Current']))))
 
                 if(data['Voltage'][j] > 0):
                     ivplane.append(np.sqrt(data['Voltage'][j]**2 + data['Current'][j]**2))
@@ -326,8 +362,48 @@ for i in numberofcsvs:
                 plt.xlabel('IV Plane')
                 plt.tight_layout()
                 
-                plt.savefig('Cycle' + str(figurenumber) +'.png')
-                figurenumber += 1
+                plt.savefig('Cycle' + str(figurenumber) +'PartA.png')
+                plt.close()
+
+            if (verbose > 9):
+                
+                plt.figure(figsize=(8,8))
+                plt.subplot(221)
+                plt.plot(resistances, charge)
+                title = str('ohm x q')
+                plt.title(title)
+                plt.ylabel('Charge [C]')
+                plt.xlabel('Voltage [V]')
+                #plt.axhline(color = 'k', linestyle = '--', linewidth = 0.5)
+                #plt.axvline(color = 'k', linestyle = '--', linewidth = 0.5)
+                plt.tight_layout()
+
+                plt.subplot(222)
+                plt.plot(data['Voltage'], chargeintegral)
+                title = str('intq x V')
+                plt.title(title)
+                plt.ylabel('Charge Integral [Cs]')
+                plt.xlabel('Voltage [V]')
+                plt.tight_layout()
+
+                plt.subplot(223)
+                plt.plot(flux, chargeintegral)
+                title = str('intq x phi')
+                plt.title(title)
+                plt.ylabel('Charge Integral [Cs]')
+                plt.xlabel('Flux [Wb]')
+                plt.tight_layout()
+
+                plt.subplot(224)
+                plt.plot(ivplane, angles)
+                plt.plot(anglesiv_x, anglesiv_y, color = 'k', linestyle = '--', linewidth = 0.5)
+                title = str('Memristance: ' + str("{:.2e}".format(fittedradiusiv/(excitationiv*(finaltime-initialtime)))) + '[Ch]\nR = ' + str(R4))
+                plt.title(title)
+                plt.ylabel('Phase angle [radians]')
+                plt.xlabel('IV Plane')
+                plt.tight_layout()
+                
+                plt.savefig('Cycle' + str(figurenumber) +'PartB.png')
                 plt.close()
 
                 '''
@@ -348,6 +424,8 @@ for i in numberofcsvs:
                 input("Press Enter to continue...")
 
                 '''
+
+            figurenumber += 1
                 
         currentfile.close()
     except TypeError:
