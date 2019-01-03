@@ -443,10 +443,10 @@ for i in numberofcsvs:
         print('WARNING: Could not open or process CSV file ', i)
         warning += 1
 
-deltaarea = np.diff(np.abs(forwardareas)) / np.abs(forwardareas[:-1])
-deltaf = np.diff(frequencies) / np.abs(frequencies[:-1])
+#deltaarea = np.diff(np.abs(forwardareas)) / np.abs(forwardareas[:-1])
+#deltaf = np.diff(frequencies) / np.abs(frequencies[:-1])
 
-memperarea = (deltaf) / deltaareaq
+#memperarea = (deltaf) / deltaareaq
 #print(memperarea)
 
 plt.figure(figsize=(8,8))
