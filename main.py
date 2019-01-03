@@ -416,12 +416,13 @@ for i in numberofcsvs:
                 plt.savefig('Cycle' + str(figurenumber) +'PartB.png')
                 plt.close()
 
-                '''
-
-                np.savetxt('Flux' + str(figurenumber) +'.csv', flux, delimiter=",")
-                np.savetxt('Charge' + str(figurenumber) +'.csv', charge, delimiter=",")
-
                 
+
+                np.savetxt('ivXflux' + str(figurenumber) +'.csv', (resistances, charge), delimiter=",")
+
+                #np.savetxt('Charge' + str(figurenumber) +'.csv', charge, delimiter=",")
+
+                '''
 
                 fig = plt.figure()
                 ax = fig.gca(projection='3d')
@@ -445,7 +446,7 @@ for i in numberofcsvs:
 deltaarea = np.diff(np.abs(forwardareas)) / np.abs(forwardareas[:-1])
 deltaf = np.diff(frequencies) / np.abs(frequencies[:-1])
 
-memperarea = (deltaf) / deltaarea
+memperarea = (deltaf) / deltaareaq
 #print(memperarea)
 
 plt.figure(figsize=(8,8))
