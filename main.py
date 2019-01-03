@@ -119,7 +119,7 @@ for i in numberofcsvs:
             # initial conditions.
 
             currentflux = 0
-            currentcharge = 0
+            currentcharge = -0.0006
             # hopefully at beginning of cycle
 
             currentchargeintegral = 0
@@ -132,6 +132,8 @@ for i in numberofcsvs:
             resistances = []
             ivplane = []
 
+            iqplane = []
+
             angles = []
 
             voltagephasor_angle = []
@@ -140,6 +142,8 @@ for i in numberofcsvs:
 
             charge.append(currentcharge)
             flux.append(currentflux)
+
+            iqplane.append(currentcharge*data['Current'][0])
 
             chargeintegral.append(currentchargeintegral)
 
@@ -170,6 +174,8 @@ for i in numberofcsvs:
                 
             for j in range(dataNum - 1):
 
+
+                '''
                 if (verbose > 9):
 
                     plt.figure()
@@ -187,16 +193,20 @@ for i in numberofcsvs:
                     plt.savefig('Phasor' + str(j) +'.png')
                     plt.close()
 
+                '''
+
                 currentchargeintegral = currentchargeintegral + currentcharge*(data['Time'][j+1] - data['Time'][j])
                 chargeintegral.append(currentchargeintegral)
+
+                iqplane.append(currentcharge*data['Current'][j])
 
                 currentcharge = currentcharge + (data['Time'][j+1] - data['Time'][j])*(data['Current'][j+1] - data['Current'][j])/2 + (data['Time'][j+1] - data['Time'][j])*data['Current'][j]
                 currentflux = currentflux + (data['Time'][j+1] - data['Time'][j])*(data['Voltage'][j+1] - data['Voltage'][j])/2 + (data['Time'][j+1] - data['Time'][j])*data['Voltage'][j]
 
                 resistances.append(data['Voltage'][j]/data['Current'][j])
 
-                voltagephasor_angle.append(np.arccos(np.abs(data['Voltage'][j]/np.max(data['Voltage']))))
-                currentphasor_angle.append(np.arccos(np.abs(data['Current'][j]/np.max(data['Current']))))
+                #voltagephasor_angle.append(np.arccos(np.abs(data['Voltage'][j]/np.max(data['Voltage']))))
+                #currentphasor_angle.append(np.arccos(np.abs(data['Current'][j]/np.max(data['Current']))))
 
                 if(data['Voltage'][j] > 0):
                     ivplane.append(np.sqrt(data['Voltage'][j]**2 + data['Current'][j]**2))
@@ -369,17 +379,17 @@ for i in numberofcsvs:
                 
                 plt.figure(figsize=(8,8))
                 plt.subplot(221)
-                plt.plot(resistances, charge)
-                title = str('ohm x q')
+                plt.plot(data['Voltage'], iqplane)
+                title = str('qi x V')
                 plt.title(title)
-                plt.ylabel('Charge [C]')
+                plt.ylabel('Charge * Current [AC]')
                 plt.xlabel('Voltage [V]')
                 #plt.axhline(color = 'k', linestyle = '--', linewidth = 0.5)
                 #plt.axvline(color = 'k', linestyle = '--', linewidth = 0.5)
                 plt.tight_layout()
 
                 plt.subplot(222)
-                plt.plot(data['Voltage'], chargeintegral)
+                plt.plot(charge, resistances)
                 title = str('intq x V')
                 plt.title(title)
                 plt.ylabel('Charge Integral [Cs]')
