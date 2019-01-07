@@ -119,7 +119,7 @@ for i in numberofcsvs:
             # initial conditions.
 
             currentflux = 0
-            currentcharge = -0.0006
+            currentcharge = 0
             # hopefully at beginning of cycle
 
             currentchargeintegral = 0
@@ -418,7 +418,7 @@ for i in numberofcsvs:
 
                 
 
-                np.savetxt('ivXflux' + str(figurenumber) +'.csv', (resistances, charge), delimiter=",")
+                np.savetxt('ivXflux' + str(figurenumber) +'.csv', (charge, resistances), delimiter=",")
 
                 #np.savetxt('Charge' + str(figurenumber) +'.csv', charge, delimiter=",")
 
@@ -443,11 +443,11 @@ for i in numberofcsvs:
         print('WARNING: Could not open or process CSV file ', i)
         warning += 1
 
-#deltaarea = np.diff(np.abs(forwardareas)) / np.abs(forwardareas[:-1])
-#deltaf = np.diff(frequencies) / np.abs(frequencies[:-1])
+deltaarea = np.diff(np.abs(forwardareas)) / np.abs(forwardareas[:-1])
+deltaf = np.diff(frequencies) / np.abs(frequencies[:-1])
 
-#memperarea = (deltaf) / deltaareaq
-#print(memperarea)
+memperarea = (deltaf) / deltaarea
+print(memperarea)
 
 plt.figure(figsize=(8,8))
 plt.subplot(221)
