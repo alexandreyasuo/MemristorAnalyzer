@@ -130,6 +130,7 @@ for i in numberofcsvs:
             chargeintegral = []
 
             resistances = []
+            conductances = []
             ivplane = []
 
             iqplane = []
@@ -143,8 +144,6 @@ for i in numberofcsvs:
             charge.append(currentcharge)
             flux.append(currentflux)
 
-            iqplane.append(currentcharge*data['Current'][0])
-
             chargeintegral.append(currentchargeintegral)
 
             initialtime = data['Time'][0]
@@ -156,44 +155,14 @@ for i in numberofcsvs:
             maxV = data['Voltage'][0]
             # to detect turning from "going" to "returning"
 
-            resistances.append(data['Voltage'][0]/data['Current'][0])
+            #resistances.append(data['Voltage'][0]/data['Current'][0])
+
+            #conductances.append(data['Current'][0]/data['Voltage'][0])
 
             voltagephasor_angle.append(np.arccos(data['Voltage'][0]/np.max(data['Voltage'])))
             currentphasor_angle.append(np.arccos(data['Current'][0]/np.max(data['Current'])))
-
-   
-            if(data['Voltage'][0] > 0):
-                ivplane.append(np.sqrt(data['Voltage'][0]**2 + data['Current'][0]**2))
-            else:
-                ivplane.append(-np.sqrt(data['Voltage'][0]**2 + data['Current'][0]**2))
-
-            if(data['Voltage'][0] == 0):
-                angles.append(np.pi/2)
-            else:
-                angles.append(np.arctan(data['Voltage'][0]/data['Current'][0]))
                 
             for j in range(dataNum - 1):
-
-
-                '''
-                if (verbose > 9):
-
-                    plt.figure()
-
-                    plt.ylim(-1,1)
-                    plt.xlim(-1,1)
-
-                    origin = [0], [0]
-
-                    voltagephasor = np.sin(voltagephasor_angle[j]), np.sin(currentphasor_angle[j])
-                    currentphasor = np.cos(voltagephasor_angle[j]), np.cos(currentphasor_angle[j])
-
-                    plt.quiver(*origin, voltagephasor, currentphasor, color=['r','b'], scale=5)
-                    
-                    plt.savefig('Phasor' + str(j) +'.png')
-                    plt.close()
-
-                '''
 
                 currentchargeintegral = currentchargeintegral + currentcharge*(data['Time'][j+1] - data['Time'][j])
                 chargeintegral.append(currentchargeintegral)
@@ -204,6 +173,7 @@ for i in numberofcsvs:
                 currentflux = currentflux + (data['Time'][j+1] - data['Time'][j])*(data['Voltage'][j+1] - data['Voltage'][j])/2 + (data['Time'][j+1] - data['Time'][j])*data['Voltage'][j]
 
                 resistances.append(data['Voltage'][j]/data['Current'][j])
+                conductances.append(data['Current'][j]/data['Voltage'][j])
 
                 #voltagephasor_angle.append(np.arccos(np.abs(data['Voltage'][j]/np.max(data['Voltage']))))
                 #currentphasor_angle.append(np.arccos(np.abs(data['Current'][j]/np.max(data['Current']))))
@@ -256,6 +226,21 @@ for i in numberofcsvs:
                     else:
                         partialInt2 = partialInt2 + (data['Voltage'][j+1] - data['Voltage'][j])*data['Current'][j]
                                         # integrate "returning"
+
+            resistances.append(data['Voltage'][dataNum-1]/data['Current'][dataNum-1])
+            conductances.append(data['Current'][dataNum-1]/data['Voltage'][dataNum-1])
+
+            iqplane.append(currentcharge*data['Current'][dataNum-1])
+
+            if(data['Voltage'][dataNum-1] > 0):
+                ivplane.append(np.sqrt(data['Voltage'][dataNum-1]**2 + data['Current'][dataNum-1]**2))
+            else:
+                ivplane.append(-np.sqrt(data['Voltage'][dataNum-1]**2 + data['Current'][dataNum-1]**2))
+
+            if(data['Voltage'][dataNum-1] == 0):
+                angles.append(np.pi/2)
+            else:
+                angles.append(np.arctan(data['Voltage'][dataNum-1]/data['Current'][dataNum-1]))
 
             partialInt2 = -partialInt2
             backwardLoop = partialInt1 - partialInt2
@@ -332,6 +317,7 @@ for i in numberofcsvs:
                 #print('Memristance (by voltage): ', "{:.2e}".format(fittedradiusvoltage/(excitationvoltage*(finaltime-initialtime))), '[Ch] --- R = ', R1)
                 #print('Memristance (by current): ', "{:.2e}".format(fittedradiuscurrent/(excitationcurrent*(finaltime-initialtime))), '[Ch] --- R = ', R2)
                 print('Memristance (IV method): ', "{:.2e}".format(fittedradiusiv/(excitationiv*(finaltime-initialtime))), '[Ch] --- R = ', R3)
+                print('Memristance (q-axis): ', "{:.2e}".format(fittedradiusiv*1.62e4/(excitationiv*(finaltime-initialtime))), '[Ch] --- R = ', R3)
             
             if (verbose > 8):
                 
@@ -356,7 +342,7 @@ for i in numberofcsvs:
 
                 plt.subplot(223)
                 plt.plot(ivplane, resistances)
-                plt.plot(cirfitiv_x, cirfitiv_y, color = 'k', linestyle = '--', linewidth = 0.5)
+                #plt.plot(cirfitiv_x, cirfitiv_y, color = 'k', linestyle = '--', linewidth = 0.5)
                 title = str('Memristance: '+ str("{:.2e}".format(fittedradiusiv/(excitationiv*(finaltime-initialtime)))) + '[Ch]\nR = ' + str(R3))
                 plt.title(title)
                 plt.ylabel('Resistance [Ohm]')
@@ -364,8 +350,8 @@ for i in numberofcsvs:
                 plt.tight_layout()
 
                 plt.subplot(224)
-                plt.plot(ivplane, angles)
-                plt.plot(anglesiv_x, anglesiv_y, color = 'k', linestyle = '--', linewidth = 0.5)
+                plt.plot(data['Current'], conductances)
+                #plt.plot(anglesiv_x, anglesiv_y, color = 'k', linestyle = '--', linewidth = 0.5)
                 title = str('Memristance: ' + str("{:.2e}".format(fittedradiusiv/(excitationiv*(finaltime-initialtime)))) + '[Ch]\nR = ' + str(R4))
                 plt.title(title)
                 plt.ylabel('Phase angle [radians]')
@@ -422,11 +408,11 @@ for i in numberofcsvs:
 
                 #np.savetxt('Charge' + str(figurenumber) +'.csv', charge, delimiter=",")
 
-                '''
+                
 
                 fig = plt.figure()
                 ax = fig.gca(projection='3d')
-                ax.plot(data['Voltage'], -data['Current'], angles)
+                ax.plot(data['Voltage'], data['Current'], conductances)
                 plt.show()
                 #for l in range(0,90):
                     #ax.view_init(90-l,l/2)
@@ -434,7 +420,7 @@ for i in numberofcsvs:
                 
                 input("Press Enter to continue...")
 
-                '''
+                
 
             figurenumber += 1
                 
