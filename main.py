@@ -408,20 +408,71 @@ for i in numberofcsvs:
 
                 #np.savetxt('Charge' + str(figurenumber) +'.csv', charge, delimiter=",")
 
+
+                zerovector = []
+                zerovector2 = []
+                rescalev = []
+                rescalei = []
+                rescaler = []
+                for p in range(0,len(data['Voltage'])):
+                    zerovector.append(20)
+                    zerovector2.append(3.5)
+                    rescalev.append(data['Voltage'][p]*1)
+                    rescalei.append(data['Current'][p]*1e6)
+                    rescaler.append(resistances[p]/1000)
+
                 
 
                 fig = plt.figure()
                 ax = fig.gca(projection='3d')
-                ax.plot(data['Voltage'], data['Current'], conductances)
+                
+                ax.plot(rescalei, rescalev, zerovector, c='r')
+                ax.plot(rescalei, zerovector2, rescaler, c='g')
+                ax.plot(rescalei, rescalev , rescaler, c='k')
+                ax.set_zlim(20,80)
+                ax.set_xlim(-60,60)
+                ax.set_ylim(-3.5,3.5)
+                #ax.set_yticks([0.8,1.3,1.8])
+                #ax.set_xticks([-1,-0.5,0,0.5,1])
+                ax.set_ylabel("Voltage [V]")
+                ax.set_xlabel("Current [µA]")
+                ax.set_zlabel("Resistance [Ohm]")
+
+                ax.grid(False)
+
+                ax.xaxis.pane.fill = False
+                #ax.yaxis.pane.fill = False
+                #ax.zaxis.pane.fill = False
+
+                ax.xaxis.pane.set_edgecolor('k')
+                ax.yaxis.pane.set_edgecolor('k')
+                ax.zaxis.pane.set_edgecolor('k')
+
+                ax.xaxis.pane.set_alpha(1)
+                ax.yaxis.pane.set_alpha(1)
+                ax.zaxis.pane.set_alpha(1)
+
                 plt.show()
                 #for l in range(0,90):
                     #ax.view_init(90-l,l/2)
-                    #plt.savefig("movie"+str(l)+".png")                
+                    #plt.savefig("movie"+str(l)+".png")
+                
                 
                 input("Press Enter to continue...")
 
-                
+                plt.close()
 
+                fig = plt.figure(1, figsize=(6, 6))
+                plt.plot(rescalev, rescalei, c='r')
+                #ax.set_xlim(-60,60)
+                #ax.set_ylim(20,80)
+                #plt.ylim(0.40,2.2)
+                #plt.ylim(0.5,4.5)
+                plt.xticks([-1,-0.5,0,0.5,1])
+                plt.ylabel("Current [mA]")
+                plt.xlabel("Voltage [V]")
+                plt.savefig("xaxis.png")    
+                input("Press Enter to continue...")
             figurenumber += 1
                 
         currentfile.close()
