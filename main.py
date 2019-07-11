@@ -25,6 +25,9 @@ from openpyxl import Workbook
 # needed to save to XLSX
 
 import matplotlib.pyplot as plt
+
+import matplotlib
+
 from mpl_toolkits.mplot3d import Axes3D
 # plotting
 
@@ -123,7 +126,22 @@ for i in numberofcsvs:
             # hopefully at beginning of cycle
 
             currentchargeintegral = 0
+            '''
+            fig = plt.figure(1, figsize=(8, 6))
+            plt.plot(data['Voltage'], data['Current'], c='k')
+            #ax.set_xlim(-60,60)
+            #ax.set_ylim(20,80)
+            #plt.ylim(0.40,2.2)
+            #plt.ylim(0.5,4.5)
+            #plt.xticks([-1,-0.5,0,0.5,1])
 
+
+                
+            plt.xlabel("Voltage [V]")
+            plt.ylabel("Current [A]")
+            plt.savefig("xaxis.png")    
+            input("Press Enter to continue...")
+            '''
             charge = []
             flux = []
 
@@ -404,11 +422,11 @@ for i in numberofcsvs:
 
                 
 
-                np.savetxt('ivXflux' + str(figurenumber) +'.csv', (charge, resistances), delimiter=",")
+                #np.savetxt('ivXflux' + str(figurenumber) +'.csv', (data['Voltage'], data['Current'], resistances), delimiter=",")
 
                 #np.savetxt('Charge' + str(figurenumber) +'.csv', charge, delimiter=",")
 
-
+                '''
                 zerovector = []
                 zerovector2 = []
                 rescalev = []
@@ -421,6 +439,11 @@ for i in numberofcsvs:
                     rescalei.append(data['Current'][p]*1e6)
                     rescaler.append(resistances[p]/1000)
 
+                plt.rcParams.update({'font.size': 16})
+                plt.rcParams.update({'font.family': 'serif'})
+
+                plt.rcParams.update({'xtick.direction': 'in'})
+                plt.rcParams.update({'ytick.direction': 'in'})
                 
 
                 fig = plt.figure()
@@ -460,19 +483,28 @@ for i in numberofcsvs:
                 
                 input("Press Enter to continue...")
 
+                
+
                 plt.close()
 
+
+
                 fig = plt.figure(1, figsize=(6, 6))
-                plt.plot(rescalev, rescalei, c='r')
+                plt.plot(rescalei, rescalev, c='k')
                 #ax.set_xlim(-60,60)
                 #ax.set_ylim(20,80)
                 #plt.ylim(0.40,2.2)
                 #plt.ylim(0.5,4.5)
-                plt.xticks([-1,-0.5,0,0.5,1])
-                plt.ylabel("Current [mA]")
-                plt.xlabel("Voltage [V]")
+                #plt.xticks([-1,-0.5,0,0.5,1])
+
+
+                
+                plt.xlabel("Current [µA]")
+                plt.ylabel("Voltage [V]")
                 plt.savefig("xaxis.png")    
                 input("Press Enter to continue...")
+
+                '''
             figurenumber += 1
                 
         currentfile.close()
@@ -488,7 +520,7 @@ print(memperarea)
 
 plt.figure(figsize=(8,8))
 plt.subplot(221)
-plt.semilogx(frequencies, forwardareas)
+plt.semilogx(frequencies, np.absolute(forwardareas), c='k')
 title = str('Forward loop area x f')
 plt.title(title)
 plt.ylabel('Forward loop area [W]')
@@ -496,12 +528,14 @@ plt.xlabel('Frequency [Hz]')
 plt.tight_layout()
 
 plt.subplot(222)
-plt.semilogx(frequencies, backwardareas)
+plt.semilogx(frequencies, backwardareas, c='k')
 title = str('Backward loop area x f')
 plt.title(title)
 plt.ylabel('Backward loop area [W]')
 plt.xlabel('Frequency [Hz]')
 plt.tight_layout()
+
+np.savetxt('ivXflux' + str(figurenumber) +'.csv', (frequencies, np.absolute(forwardareas), backwardareas), delimiter=",")
 
 plt.subplot(223)
 plt.plot(propermem)
